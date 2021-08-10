@@ -1,0 +1,29 @@
+---
+# site.yml entrypoint
+- name: playbook to install/uninstall windows features 
+  hosts: all
+  strategy: free
+  gather_facts: False
+  pre_tasks:
+    - setup:
+        gather_subset:
+          - '!all'
+          - 'network'
+  
+  tasks:
+    - block: 
+      - name: Add windows features role
+        import_role:
+          name: concierto.windows.optional_roles_and_features
+        vars:
+          roles_and_features:
+            'Telnet-Client': False
+            'TFTP-Client' : False
+            'TelnetClient' : False
+        tags: always
+      ignore_errors: True
+    
+- name: Consolidate Output
+  import_playbook: consolidate_output.yml
+  # when: generate_csv == 'yes'
+    

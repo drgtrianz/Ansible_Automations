@@ -1,0 +1,36 @@
+---
+# site.yml entrypoint
+- name: playbook to add/modify/delete a task scheduler job 
+  hosts: all
+  strategy: free
+  gather_facts: False
+  pre_tasks:
+    - setup:
+        gather_subset:
+          - '!all'
+          - 'network'
+  
+  tasks:
+    - block: 
+      - name: Add task scheduler role
+        import_role:
+          name: concierto.windows.task_scheduler
+        vars:
+          scheduled_tasks:
+            - name: 'Notepad launcher'
+              description: 'This task launch notepad evry Day at 12:00'
+              actions:
+                - path: c:\windows\system32\notepad.exe
+              triggers:
+                - type: daily
+                  start_boundary: '2021-08-11T12:00:00'
+              username: SYSTEM
+              enabled: true
+              state: present
+        tags: always
+      ignore_errors: True
+    
+- name: Consolidate Output
+  import_playbook: consolidate_output.yml
+  # when: generate_csv == 'yes'
+    
